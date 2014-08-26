@@ -10,33 +10,42 @@ my $point = {
 
 my $grid = {
 	"0,0" => "X",
+	"9,9" => "O"
 };
 
-my $coords = "0,0";
 while (1) {
-	moveItem();
-	system 'cls';
-	drawGrid();
-	usleep 100000;
+	
+	foreach my $key (keys %$grid) {
+		moveItem($key);
+		system 'cls';
+		drawGrid();
+		usleep 50000;
+		#\sleep 1;
+	}
+	
+
 }
 
 sub moveItem {
+	my $coords = shift;
+	#print $coords;
+	
 	my $moveX = int(rand(3)) - 1;
 	my $moveY = int(rand(3)) - 1;
 	
-	print "moving $moveX,$moveY\n";
+	#print "moving $moveX,$moveY\n";
 	
 	my @currentCoords = split /,/, $coords;
-	print Dumper(@currentCoords) . "\n";
+	#print Dumper(@currentCoords) . "\n";
 	
 	my $curX = $currentCoords[0];
 	my $newX = $curX + $moveX;
-	print "$curX + $moveX = $newX\n";
+	#print "$curX + $moveX = $newX\n";
 	
 	
 	$newX = $newX < 0 ? 0 : $newX;
 	$newX = $newX > 9 ? 9 : $newX;
-	print "newx: $newX\n";
+	#print "newx: $newX\n";
 	
 	my $newY = $currentCoords[1] + $moveY;
 	$newY = $newY < 0 ? 0 : $newY;
@@ -46,7 +55,7 @@ sub moveItem {
 
 	delete $grid->{$coords};
 	$coords = $newX . ',' . $newY;
-	print $coords . "\n";
+	#print $coords . "\n";
 	#print $item . "\n";
 	$grid->{$coords} = $item;
 }
