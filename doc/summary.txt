@@ -1,0 +1,48 @@
+Bear
+
+
+Lumberjack
+
+
+Tree
+
+
+
+EcoEntity
+    TakeTurn()
+    GetStrength()
+
+
+
+Rules
+-------
+Bear
+    Maws lumberjack
+    Moves 5 spaces
+    If last lumberjack mawed, new one spawns
+
+    0 maws in 12 months = +1 bear
+    1+ maws in 12 months = -1 bear
+
+Lumberjack
+    Chops down tree/elder tree
+    Moves 3 spaces
+
+    After 12 months hire (# lumber / 10 rounded down) more
+    If # of lumber < # of lumberjacks, let one go
+
+Tree
+    1 month = 10% chance for Tree to spawn adjacent sappling
+    1 month = 20% chance for Elder tree to spawn sappling
+    12 months = Sappling becomes Tree
+    120 months = Tree becomes elder tree
+
+-----
+
+Global Variables:
+Counts:
+    # of trees, lumberjacks, bears
+
+Resources:
+    # of maws this year
+    # of lumber collected
