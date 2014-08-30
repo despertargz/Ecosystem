@@ -1,0 +1,43 @@
+
+var counts;
+var data;
+
+for 1 to TOTAL_YEARS
+    foreach item in grid
+        item.TakeTurn()
+
+    foreach rule in rules
+        rule.Run()
+
+
+------------
+
+Bear
+	TakeTurn()
+
+
+Lumberjack
+
+
+Tree
+
+
+
+EcoEntity
+    TakeTurn()
+    GetStrength()
+
+Grid
+    GetEntity(coordinates)
+    AddEntity(coordinates)
+
+------------
+
+Global Variables:
+
+Counts:
+    # of trees, lumberjacks, bears
+
+Resources:
+    # of maws this year
+    # of lumber collected

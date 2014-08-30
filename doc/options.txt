@@ -1,0 +1,9 @@
+TreeOptions
+	SpawnPercentage
+		ElderTree => 20%
+		Tree => 10%
+		Sappling => 0%
+	Age
+		ElderTree => 120
+		Tree => 12
+		Sappling => 0
