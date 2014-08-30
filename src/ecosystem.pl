@@ -8,7 +8,6 @@ use Time::HiRes qw(sleep usleep);
 use Grid;
 use Tree;
 
-
 my $treeOptions = {
 	Age => {
 		ElderTree => 120,
@@ -23,24 +22,32 @@ my $treeOptions = {
 };
 
 my $counts = {
-	Tree => 0,
+	Tree => 1,
 	LumberJacks => 0,
 	Bears => 0
 };
 
-my $grid = Grid->New(10);
+my $grid = Grid->New(50);
 my $tree = Tree->New($grid, $counts, $treeOptions);
-$grid->CreateEntity($tree, "5,5");
+$grid->CreateEntityNearby($tree, "25,25");
 
 my $MONTHS_PER_YEAR = 12;
 my $YEARS = 400;
 my $MONTHS = $YEARS * $MONTHS_PER_YEAR;
-for (1..$MONTHS) {
+foreach my $month (1..$MONTHS) {
 	foreach my $coord ($grid->GetCoords()) {
 		my $ecoEntity = $grid->GetEntity($coord);
-		$ecoEntity->TakeTurn();
-		$grid->Draw();
-		
-		sleep(.25);
+		$ecoEntity->TakeTurn($coord);
 	}
+	
+	
+	system 'cls';
+	$grid->Draw();
+	print "Year #" . int($month / 12) . "." . ($month % 12) . "\n";
+	print $counts->{Tree};
+	#if ($counts->{Tree} >= 100) {
+		#exit;
+	#}
+	
+	#sleep(.001);
 }

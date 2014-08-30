@@ -28,33 +28,39 @@ sub GetTreeType {
 
 sub SpawnSappling {
 	my $self = shift;
+	my $coord = shift;
 	
+	my $tree = Tree->New($self->{Grid}, $self->{Counts}, $self->{TreeOptions});
+	my $result = $self->{Grid}->CreateEntityNearby($tree, $coord);
+	if ($result) {
+		$self->{Counts}->{Tree}++;
+	}
 	
-	
-	my $tree = Tree->New();
-	$self->{Grid}->CreateEntity($tree);
-	$self->{Counts}->{Tree}++;
 	
 	$treeCount = $self->{Counts}->{Tree};
-	print "Spawning sappling! There are $treeCount trees.\n";
+	#print "Spawning sappling! There are $treeCount trees.\n";
 	
 }
 
 sub TakeTurn {
 	my $self = shift;
+	my $coord = shift;
 	
-	print "Tree is taking turn!\n";
+	#print "Tree is taking turn!\n";
 	$self->{Age}++;
 	
 	my $treeType = $self->GetTreeType();
 	my $spawnPercentage = $self->{TreeOptions}->{SpawnPercentage}->{$treeType};
 	if (rand(1) < $spawnPercentage) {
-		$self->SpawnSappling();
+		$self->SpawnSappling($coord);
 	}
 }
 
 sub GetSymbol {
-	return "T";
+	my $self = shift;
+
+	return substr $self->GetTreeType(), 0, 1;
+	
 }
 
 return 1;
