@@ -9,7 +9,7 @@ Bear
     1+ maws in 12 months = -1 bear
 
 Lumberjack
-    Chops down tree/elder tree
+    Chops down tree(1 lumber)/elder tree(2 lumber))
     Moves 3 spaces
 
     After 12 months hire (# lumber / 10 rounded down) more

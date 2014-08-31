@@ -28,15 +28,16 @@ sub _FindAdjacentCoords {
 		 }
 	}
 	
-	return @adjacents;
+	return shuffle(@adjacents);
 }
 
 sub New {
-	my ($class, $size) = @_;
+	my ($class, $size, $entityAnalyzer) = @_;
 
 	my $self = {
 		Size => $size,
-		Grid => {}
+		Grid => {},
+		EntityAnalyzer = $entityAnalyzer
 	};
 	
 	return bless $self;
@@ -55,14 +56,9 @@ sub GetEntity {
 }
 
 sub SetEntity {
-	my ($self, $coords) = @_;
+	my ($self, $coords, $entity) = @_;
 	
-}
-
-sub MoveEntity {
-	my ($self, $coords, $spaces) = @_;
-	
-	
+	$self->{Grid}->{$coords} = $entity;
 }
 
 sub CreateEntityNearby {
@@ -71,8 +67,6 @@ sub CreateEntityNearby {
 
 	@coords = $self->_FindAdjacentCoords($coords);
 	#print "Found adjacent coords: @coords";
-	
-	@shuffledCoords = shuffle(@coords);
 	
 	foreach my $coord (@shuffledCoords) {
 		my $existingEntity = $self->GetEntity($coord);
@@ -84,6 +78,58 @@ sub CreateEntityNearby {
 	
 	#print "Could not find space to put entity!\n";
 	return 0;
+}
+
+sub RemoveEntity {
+	my ($self, $entity, $coords) = @_;
+	
+	delete $self->{Grid}->{$coords};
+}
+
+sub MoveInternal {
+	my ($self, $movingEntity, $moverCoords) = @_;
+	
+	my @adjacentCoords = $self->_GetAdjacentCoords($moverCoords);
+	foreach my $coord (@adacentCoords) {
+		my $targetEntity = $self->GetEntity($coord);
+		my $result = $movingEntity->Analyze($movingEntity, $targetEntity);
+		
+		if ($result eq "Empty") {
+			$self->SetEntity($movingEntity, $coord);
+			$self->RemoveEntity($movingEntity, $moverCoords);
+			return $coord;
+		}
+		elsif ($result eq "Lesser") {
+			$movingEntity->Lose();
+			$targetEntity->Win();
+			return undef;
+		}
+		elsif ($result eq "Greater") {
+			$self->SetEntity($movingEntity, $coord);
+			$self->RemoveEntity($movingEntity, $moverCoords);
+			
+			$movingEntity->Win();
+			$targetEntity->Lose();
+			return undef;
+		}
+		elsif ($result eq "Same" || $result eq "Friendly") {
+			# try another coordinate
+			# todo: in future friendly will allow a move
+		}
+	}
+	
+	return undef;
+}
+
+sub MoveEntity {
+	my ($self, $movingEntity, $entityCoords, $spacesToMove) = @_;
+	
+	foreach (1..$spacesToMove) {
+		$moverCoords = $self->MoveInternal($movingEntity, $entityCoords);
+		if ($moverCoords == undef) {
+			return;
+		}
+	}
 }
 
 sub Draw {

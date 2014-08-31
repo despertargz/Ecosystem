@@ -27,8 +27,7 @@ sub GetTreeType {
 }
 
 sub SpawnSappling {
-	my $self = shift;
-	my $coord = shift;
+	my ($self, $coord) = @_;
 	
 	my $tree = Tree->New($self->{Grid}, $self->{Counts}, $self->{TreeOptions});
 	my $result = $self->{Grid}->CreateEntityNearby($tree, $coord);
@@ -43,8 +42,7 @@ sub SpawnSappling {
 }
 
 sub TakeTurn {
-	my $self = shift;
-	my $coord = shift;
+	my ($self, $coord) = @_;
 	
 	#print "Tree is taking turn!\n";
 	$self->{Age}++;
@@ -60,7 +58,10 @@ sub GetSymbol {
 	my $self = shift;
 
 	return substr $self->GetTreeType(), 0, 1;
-	
+}
+
+sub GetType {
+	return "Tree";
 }
 
 return 1;

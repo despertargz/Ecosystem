@@ -28,8 +28,10 @@ my $counts = {
 };
 
 my $grid = Grid->New(50);
-my $tree = Tree->New($grid, $counts, $treeOptions);
-$grid->CreateEntityNearby($tree, "25,25");
+my $tree = 
+$grid->CreateEntityNearby(Tree->New($grid, $counts, $treeOptions), "0,0");
+$grid->CreateEntityNearby(Tree->New($grid, $counts, $treeOptions), "49,49");
+$grid->CreateEntityNearby(Tree->New($grid, $counts, $treeOptions), "24,24");
 
 my $MONTHS_PER_YEAR = 12;
 my $YEARS = 400;
@@ -40,14 +42,13 @@ foreach my $month (1..$MONTHS) {
 		$ecoEntity->TakeTurn($coord);
 	}
 	
-	
 	system 'cls';
 	$grid->Draw();
-	print "Year #" . int($month / 12) . "." . ($month % 12) . "\n";
+	print "Year " . int($month / 12) . "." . ($month % 12) . "\n";
 	print $counts->{Tree};
 	#if ($counts->{Tree} >= 100) {
 		#exit;
 	#}
 	
-	#sleep(.001);
+	sleep(.010);
 }
