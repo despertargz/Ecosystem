@@ -88,7 +88,7 @@ sub Draw {
 	my $self = shift;
 
 	my $colors = {
-		S => "bright_green",
+		S => "cyan",
 		T => "green",
 		E => "magenta",
 		L => "red"
@@ -100,7 +100,7 @@ sub Draw {
 			
 			my $entity = $self->{Grid}->{$coords};
 			
-			print " ";
+			print "";
 			if ($entity) {
 				my $symbol = $entity->GetSymbol();
 				print color($colors->{$symbol});
@@ -108,9 +108,9 @@ sub Draw {
 				print color('white');
 			}
 			else {
-				print "_";
+				print " ";
 			}
-			print " ";
+			print "";
 		}
 		
 		print "\n";

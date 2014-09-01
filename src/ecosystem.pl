@@ -12,9 +12,9 @@ use CoordinateFinder;
 
 my $treeOptions = {
 	Age => {
-		ElderTree => 120,
-		Tree => 12,
-		Sappling => 0
+		ElderTree => 500,
+		Tree => 500,
+		Sapling => 0
 	},
 	SpawnPercentage => {
 		ElderTree => .20,
@@ -24,7 +24,7 @@ my $treeOptions = {
 };
 
 my $lumberJackOptions = {
-	Moves => 3
+	Moves => 10
 };
 
 my $data = {
@@ -47,6 +47,7 @@ $tree->{Age} = 12;
 my $lumberJack = LumberJack->New($grid, $data, $lumberJackOptions);
 $grid->SetEntity("0,0", $tree);
 $grid->SetEntity("9,9", $lumberJack);
+
 
 my $MONTHS_PER_YEAR = 12;
 my $YEARS = 400;

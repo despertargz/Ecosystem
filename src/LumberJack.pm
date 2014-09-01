@@ -10,12 +10,6 @@ sub New {
 	};
 }
 
-sub Move {
-	my ($self, $coords) = @_;
-
-
-}
-
 sub TakeTurn {
 	my ($self, $coords) = @_;
 	
@@ -27,8 +21,14 @@ sub TakeTurn {
 		my $targetEntityType = defined($moveResult->{TargetEntity}) ?
 			$moveResult->{TargetEntity}->GetType() :
 			undef;
+			
+		if (defined($targetEntityType)) {
+			print "FOUND A $targetEntityType\n";
+			my $wait = <>;
+		}
 		
-		print "Moving to spot with " . $targetEntityType . "\n";
+		
+		#print "Moving to spot with " . $targetEntityType . "\n";
 		if ($targetEntityType eq "Bear") {
 			$self->{Grid}->RemoveEntity($coords, $self);
 			
@@ -56,6 +56,11 @@ sub TakeTurn {
 			$self->{Data}->{MonthlyData}->{Lumber} += 2;
 			$self->{Data}->{Counts}->{Tree}--;
 			return;
+		}
+		elsif ($targetEntityType eq "Sapling") {
+			print "WHY ARE YOU KILLING THEM?\n";
+			my $wait = <>;
+			#if sappling dont kill him
 		}
 		else {
 			#empty space, move there

@@ -12,7 +12,7 @@ sub New {
 	};
 }
 
-sub GetTreeType {
+sub GetType {
 	my ($self) = @_;
 	
 	if ($self->{Age} < $self->{TreeOptions}->{Age}->{Tree}) {
@@ -47,7 +47,7 @@ sub TakeTurn {
 	#print "Tree is taking turn!\n";
 	$self->{Age}++;
 	
-	my $treeType = $self->GetTreeType();
+	my $treeType = $self->GetType();
 	my $spawnPercentage = $self->{TreeOptions}->{SpawnPercentage}->{$treeType};
 	if (rand(1) < $spawnPercentage) {
 		$self->SpawnSappling($coord);
@@ -57,11 +57,7 @@ sub TakeTurn {
 sub GetSymbol {
 	my $self = shift;
 
-	return substr $self->GetTreeType(), 0, 1;
-}
-
-sub GetType {
-	return "Tree";
+	return substr $self->GetType(), 0, 1;
 }
 
 return 1;
