@@ -1,5 +1,7 @@
 package Grid;
+
 use Term::ANSIColor;
+use Win32::Console::ANSI;
 
 sub New {
 	my ($class, $size, $coordinateFinder) = @_;
@@ -86,8 +88,10 @@ sub Draw {
 	my $self = shift;
 
 	my $colors = {
+		S => "bright_green",
 		T => "green",
-		L => "yellow"
+		E => "magenta",
+		L => "red"
 	};
 	
 	foreach my $row (0..$self->{Size} - 1) {
@@ -101,6 +105,7 @@ sub Draw {
 				my $symbol = $entity->GetSymbol();
 				print color($colors->{$symbol});
 				print $symbol;
+				print color('white');
 			}
 			else {
 				print "_";
