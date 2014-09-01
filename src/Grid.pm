@@ -1,46 +1,14 @@
 package Grid;
-
-use List::Util 'shuffle';
-
-sub _FindAdjacentCoords {
-	my ($self, $centerCoord) = @_;
-
-	my $x = (split /,/, $centerCoord)[0];
-	my $y = (split /,/, $centerCoord)[1];
-	#print "Finding adjacent coords for $x,$y";
-	
-	my @translations = (
-		[-1, 0], [-1, 1], [-1, -1],
-		[1, 0], [1, 1], [1, -1],
-		[0, 1], [0, -1]
-	);
-	
-	my @adjacents = ();
-	foreach my $translation (@translations) {
-		 my $newX = $x + $translation->[0];
-		 my $newY = $y + $translation->[1];
-		 my $newCoord = "$newX,$newY";
-		 if ($newY >= 0 && $newX >= 0 && $newY < $self->{Size} && $newX < $self->{Size} && $newCoord != $centerCoord) {
-			push @adjacents, $newCoord;
-		 }
-		 else {
-			#print "off grid! $newCoord\n";
-		 }
-	}
-	
-	return shuffle(@adjacents);
-}
+use Term::ANSIColor;
 
 sub New {
-	my ($class, $size, $entityAnalyzer) = @_;
+	my ($class, $size, $coordinateFinder) = @_;
 
-	my $self = {
+	return bless {
 		Size => $size,
 		Grid => {},
-		EntityAnalyzer = $entityAnalyzer
+		CoordinateFinder => $coordinateFinder
 	};
-	
-	return bless $self;
 }
 
 sub GetCoords {
@@ -61,14 +29,18 @@ sub SetEntity {
 	$self->{Grid}->{$coords} = $entity;
 }
 
+sub RemoveEntity {
+	my ($self, $coords, $entity) = @_;
+	
+	delete $self->{Grid}->{$coords};
+}
+
 sub CreateEntityNearby {
 	my ($self, $entity, $coords) = @_;
 	
-
-	@coords = $self->_FindAdjacentCoords($coords);
-	#print "Found adjacent coords: @coords";
+	my @adjacentCoords = $self->{CoordinateFinder}->GetAdjacentCoordinates($self->{Size}, $coords);
 	
-	foreach my $coord (@shuffledCoords) {
+	foreach my $coord (@adjacentCoords) {
 		my $existingEntity = $self->GetEntity($coord);
 		if ($existingEntity == undef) {
 			$self->{Grid}->{$coord} = $entity;
@@ -80,75 +52,60 @@ sub CreateEntityNearby {
 	return 0;
 }
 
-sub RemoveEntity {
-	my ($self, $entity, $coords) = @_;
-	
-	delete $self->{Grid}->{$coords};
-}
 
-sub MoveInternal {
-	my ($self, $movingEntity, $moverCoords) = @_;
+
+sub MoveEntity {
+	my ($self, $movingEntity, $coords) = @_;
 	
-	my @adjacentCoords = $self->_GetAdjacentCoords($moverCoords);
-	foreach my $coord (@adacentCoords) {
-		my $targetEntity = $self->GetEntity($coord);
-		my $result = $movingEntity->Analyze($movingEntity, $targetEntity);
+	my @adjacentCoords = $self->{CoordinateFinder}->GetAdjacentCoordinates($self->{Size}, $coords);
+	foreach my $adjacentCoord (@adjacentCoords) {
+		my $entity = $self->GetEntity($adjacentCoord);
 		
-		if ($result eq "Empty") {
-			$self->SetEntity($movingEntity, $coord);
-			$self->RemoveEntity($movingEntity, $moverCoords);
-			return $coord;
+		if ($entity == undef) {
+			return {
+				NewCoords => $adjacentCoord,
+				TargetEntity => undef,
+			}
 		}
-		elsif ($result eq "Lesser") {
-			$movingEntity->Lose();
-			$targetEntity->Win();
-			return undef;
-		}
-		elsif ($result eq "Greater") {
-			$self->SetEntity($movingEntity, $coord);
-			$self->RemoveEntity($movingEntity, $moverCoords);
-			
-			$movingEntity->Win();
-			$targetEntity->Lose();
-			return undef;
-		}
-		elsif ($result eq "Same" || $result eq "Friendly") {
-			# try another coordinate
-			# todo: in future friendly will allow a move
+		elsif ($entity->GetType() ne $movingEntity->GetType()) {
+			return {
+				NewCoords => $adjacentCoord,
+				TargetEntity => $entity
+			}
 		}
 	}
 	
-	return undef;
-}
-
-sub MoveEntity {
-	my ($self, $movingEntity, $entityCoords, $spacesToMove) = @_;
-	
-	foreach (1..$spacesToMove) {
-		$moverCoords = $self->MoveInternal($movingEntity, $entityCoords);
-		if ($moverCoords == undef) {
-			return;
-		}
+	# could not find a space which does not have the same entity, cannot move
+	return {
+		NewCoords => undef,
+		TargetEntity => undef
 	}
 }
 
 sub Draw {
 	my $self = shift;
 
+	my $colors = {
+		T => "green",
+		L => "yellow"
+	};
+	
 	foreach my $row (0..$self->{Size} - 1) {
 		foreach my $col (0..$self->{Size} - 1) {
 			my $coords = $row . ',' . $col;
 			
 			my $entity = $self->{Grid}->{$coords};
 			
-			print "";
+			print " ";
 			if ($entity) {
-				print $entity->GetSymbol();
+				my $symbol = $entity->GetSymbol();
+				print color($colors->{$symbol});
+				print $symbol;
 			}
 			else {
 				print "_";
 			}
-			print "";
+			print " ";
 		}
 		
 		print "\n";

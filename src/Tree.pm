@@ -1,13 +1,13 @@
 package Tree;
 
 sub New {
-	my ($class, $grid, $counts, $treeOptions) = @_;
+	my ($class, $grid, $data, $treeOptions) = @_;
 
 	#age in months
 	return bless {
 		Age => 0,
 		Grid => $grid,
-		Counts => $counts,
+		Data => $data,
 		TreeOptions => $treeOptions
 	};
 }
@@ -29,14 +29,14 @@ sub GetTreeType {
 sub SpawnSappling {
 	my ($self, $coord) = @_;
 	
-	my $tree = Tree->New($self->{Grid}, $self->{Counts}, $self->{TreeOptions});
+	my $tree = Tree->New($self->{Grid}, $self->{Data}, $self->{TreeOptions});
 	my $result = $self->{Grid}->CreateEntityNearby($tree, $coord);
 	if ($result) {
-		$self->{Counts}->{Tree}++;
+		$self->{Data}->{Counts}->{Tree}++;
 	}
 	
 	
-	$treeCount = $self->{Counts}->{Tree};
+	#$treeCount = $self->{Counts}->{Tree};
 	#print "Spawning sappling! There are $treeCount trees.\n";
 	
 }
