@@ -22,12 +22,6 @@ sub TakeTurn {
 			$moveResult->{TargetEntity}->GetType() :
 			undef;
 			
-		if (defined($targetEntityType)) {
-			print "FOUND A $targetEntityType\n";
-			my $wait = <>;
-		}
-		
-		
 		#print "Moving to spot with " . $targetEntityType . "\n";
 		if ($targetEntityType eq "Bear") {
 			$self->{Grid}->RemoveEntity($coords, $self);
@@ -58,8 +52,6 @@ sub TakeTurn {
 			return;
 		}
 		elsif ($targetEntityType eq "Sapling") {
-			print "WHY ARE YOU KILLING THEM?\n";
-			my $wait = <>;
 			#if sappling dont kill him
 		}
 		else {

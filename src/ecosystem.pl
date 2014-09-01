@@ -6,14 +6,16 @@ use lib $Bin;
 use Time::HiRes qw(sleep usleep);
 
 use Grid;
+
+use CoordinateFinder;
 use Tree;
 use LumberJack;
-use CoordinateFinder;
+use Bear;
 
 my $treeOptions = {
 	Age => {
-		ElderTree => 500,
-		Tree => 500,
+		ElderTree => 120,
+		Tree => 12,
 		Sapling => 0
 	},
 	SpawnPercentage => {
@@ -24,7 +26,11 @@ my $treeOptions = {
 };
 
 my $lumberJackOptions = {
-	Moves => 10
+	Moves => 3
+};
+
+my $bearOptions = {
+	Moves => 5
 };
 
 my $data = {
@@ -40,13 +46,22 @@ my $data = {
 };
 
 my $coordinateFinder = CoordinateFinder->New();
-my $grid = Grid->New(10, $coordinateFinder);
+my $grid = Grid->New(25, $coordinateFinder);
 
 my $tree = Tree->New($grid, $data, $treeOptions);
 $tree->{Age} = 12;
 my $lumberJack = LumberJack->New($grid, $data, $lumberJackOptions);
-$grid->SetEntity("0,0", $tree);
+my $bear = Bear->New($grid, $data, $bearOptions);
+
+$grid->SetEntity("1,1", $tree);
 $grid->SetEntity("9,9", $lumberJack);
+$grid->SetEntity("8,9", $lumberJack);
+$grid->SetEntity("7,9", $lumberJack);
+$grid->SetEntity("6,9", $lumberJack);
+$grid->SetEntity("5,9", $lumberJack);
+$grid->SetEntity("4,9", $lumberJack);
+$grid->SetEntity("3,9", $lumberJack);
+$grid->SetEntity("5,5", $bear);
 
 
 my $MONTHS_PER_YEAR = 12;
@@ -68,6 +83,7 @@ foreach my $month (1..$MONTHS) {
 	print "trees: " . $data->{Counts}->{Tree} . "\n";
 	print "lumberjacks: " . $data->{Counts}->{LumberJack} . "\n";
 	print "lumber: " . $data->{MonthlyData}->{Lumber} . "\n";
+	print "maws: " . $data->{MonthlyData}->{Maws} . "\n";
 	print "\n";
 	sleep(.10);
 	

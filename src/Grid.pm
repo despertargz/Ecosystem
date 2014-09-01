@@ -91,7 +91,8 @@ sub Draw {
 		S => "cyan",
 		T => "green",
 		E => "magenta",
-		L => "red"
+		L => "red",
+		B => "yellow"
 	};
 	
 	foreach my $row (0..$self->{Size} - 1) {
