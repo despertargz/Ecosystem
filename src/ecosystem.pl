@@ -1,9 +1,11 @@
 use strict;
 use warnings;
+#use diagnostics;
 
 use FindBin qw($Bin);
 use lib $Bin;
 use Time::HiRes qw(sleep usleep);
+use Carp::Always;
 
 use Grid;
 
@@ -54,14 +56,14 @@ my $lumberJack = LumberJack->New($grid, $data, $lumberJackOptions);
 my $bear = Bear->New($grid, $data, $bearOptions);
 
 $grid->SetEntity("1,1", $tree);
-$grid->SetEntity("9,9", $lumberJack);
-$grid->SetEntity("8,9", $lumberJack);
-$grid->SetEntity("7,9", $lumberJack);
-$grid->SetEntity("6,9", $lumberJack);
-$grid->SetEntity("5,9", $lumberJack);
-$grid->SetEntity("4,9", $lumberJack);
-$grid->SetEntity("3,9", $lumberJack);
-$grid->SetEntity("5,5", $bear);
+#$grid->SetEntity("9,9", $lumberJack);
+#$grid->SetEntity("8,9", $lumberJack);
+#$grid->SetEntity("7,9", $lumberJack);
+#$grid->SetEntity("6,9", $lumberJack);
+#$grid->SetEntity("5,9", $lumberJack);
+#$grid->SetEntity("4,9", $lumberJack);
+#$grid->SetEntity("3,9", $lumberJack);
+#$grid->SetEntity("5,5", $bear);
 
 
 my $MONTHS_PER_YEAR = 12;
@@ -70,9 +72,11 @@ my $MONTHS = $YEARS * $MONTHS_PER_YEAR;
 
 foreach my $month (1..$MONTHS) {
 	foreach my $coord ($grid->GetCoords()) {
-		my $ecoEntity = $grid->GetEntity($coord);
-		if (defined($ecoEntity)) {
-			$ecoEntity->TakeTurn($coord);
+		my $ecoEntities = $grid->GetEntity($coord);
+		if (defined($ecoEntities)) {
+			foreach my $ecoEntity (@$ecoEntities) {
+				$ecoEntity->TakeTurn($coord);
+			}
 		}
 	}
 	
@@ -85,6 +89,6 @@ foreach my $month (1..$MONTHS) {
 	print "lumber: " . $data->{MonthlyData}->{Lumber} . "\n";
 	print "maws: " . $data->{MonthlyData}->{Maws} . "\n";
 	print "\n";
-	sleep(.10);
+	#sleep(.10);
 	
 }

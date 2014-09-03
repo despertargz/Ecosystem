@@ -35,7 +35,6 @@ sub SpawnSappling {
 		$self->{Data}->{Counts}->{Tree}++;
 	}
 	
-	
 	#$treeCount = $self->{Counts}->{Tree};
 	#print "Spawning sappling! There are $treeCount trees.\n";
 	

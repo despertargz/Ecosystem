@@ -24,7 +24,7 @@ sub GetAdjacentCoordinates {
 		 my $newX = $x + $translation->[0];
 		 my $newY = $y + $translation->[1];
 		 my $newCoord = "$newX,$newY";
-		 if ($newY >= 0 && $newX >= 0 && $newY < $gridSize && $newX < $gridSize && $newCoord != $centerCoord) {
+		 if ($newY >= 0 && $newX >= 0 && $newY < $gridSize && $newX < $gridSize && $newCoord ne $centerCoord) {
 			push @adjacents, $newCoord;
 		 }
 		 else {

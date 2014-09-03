@@ -2,6 +2,8 @@ package Grid;
 
 use Term::ANSIColor;
 use Win32::Console::ANSI;
+use Data::Dumper;
+
 
 sub New {
 	my ($class, $size, $coordinateFinder) = @_;
@@ -22,13 +24,60 @@ sub GetCoords {
 sub GetEntity {
 	my ($self, $coords) = @_;
 	
-	return $self->{Grid}->{$coords};
+	if ($self->IsEmpty($coords)) {
+		return undef;
+	}
+	else {
+		return $self->{Grid}->{$coords};
+	}
+}
+
+sub GetOneEntity {
+	my ($self, $coords, $entityType) = @_;
+
+	my $entities = $self->GetEntity($coords);
+	if (!defined($entities)) {
+		return undef;
+	}
+	
+	foreach my $entity (@$entities) {
+		if ($entity->GetType() eq $entityType) {
+			return $entity;
+		}
+	}
+	
+	#did not find the entity type we were searching for
+	return undef;
+}
+
+sub IsEmpty {
+	my ($self, $coords) = @_;
+	
+	#print Dumper($self);
+	#print "\n";
+	
+	my $exists = exists $self->{Grid}->{$coords};
+	my $empty = 0;
+	
+	if ($exists) {
+		$empty = @{$self->{Grid}->{$coords}} == 0;
+	}
+	
+	my $result = !$exists || $empty;
+	
+	#print "isempty: " . $result . "\n";
+	return $result;
 }
 
 sub SetEntity {
 	my ($self, $coords, $entity) = @_;
 	
-	$self->{Grid}->{$coords} = $entity;
+	my $exists = exists $self->{Grid}->{$coords};
+	if (!$exists) {
+		$self->{Grid}->{$coords} = [];
+	}
+	
+	push $self->{Grid}->{$coords}, $entity;
 }
 
 sub RemoveEntity {
@@ -43,9 +92,8 @@ sub CreateEntityNearby {
 	my @adjacentCoords = $self->{CoordinateFinder}->GetAdjacentCoordinates($self->{Size}, $coords);
 	
 	foreach my $coord (@adjacentCoords) {
-		my $existingEntity = $self->GetEntity($coord);
-		if ($existingEntity == undef) {
-			$self->{Grid}->{$coord} = $entity;
+		if ($self->IsEmpty($coord)) {
+			$self->{Grid}->{$coord} = [$entity];
 			return 1;
 		}
 	}
@@ -54,14 +102,21 @@ sub CreateEntityNearby {
 	return 0;
 }
 
-
+sub CreateEntityRandom {
+	my ($self, $entity) = @_;
+	
+	while (1) {
+		my $x = int(rand($self->{Size}));
+		my $y = int(rand($self->{Size}));
+	}
+}
 
 sub MoveEntity {
 	my ($self, $movingEntity, $coords) = @_;
 	
 	my @adjacentCoords = $self->{CoordinateFinder}->GetAdjacentCoordinates($self->{Size}, $coords);
 	foreach my $adjacentCoord (@adjacentCoords) {
-		my $entity = $self->GetEntity($adjacentCoord);
+		my $entity = $self->GetOneEntity($adjacentCoord, $movingEntity->GetType());
 		
 		if ($entity == undef) {
 			return {
@@ -99,19 +154,20 @@ sub Draw {
 		foreach my $col (0..$self->{Size} - 1) {
 			my $coords = $row . ',' . $col;
 			
-			my $entity = $self->{Grid}->{$coords};
-			
-			print "";
-			if ($entity) {
-				my $symbol = $entity->GetSymbol();
-				print color($colors->{$symbol});
-				print $symbol;
-				print color('white');
+			my $entities = $self->GetEntity($coords);
+			foreach my $entity (@$entities) {
+				print "";
+				if ($entity) {
+					my $symbol = $entity->GetSymbol();
+					print color($colors->{$symbol});
+					print $symbol;
+					print color('white');
+				}
+				else {
+					print " ";
+				}
+				print "";
 			}
-			else {
-				print " ";
-			}
-			print "";
 		}
 		
 		print "\n";

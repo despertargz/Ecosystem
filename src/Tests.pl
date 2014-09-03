@@ -48,6 +48,8 @@ sub LumberJack_TakeTurn_MovingOnTopOfTreeShouldCutItDown {
 	$grid->Draw();
 }
 
+
+
 sub Grid_SetEntity {
 	my $grid = Grid->New(10, undef);
 	
