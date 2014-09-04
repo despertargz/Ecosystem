@@ -3,6 +3,7 @@ package Grid;
 use Term::ANSIColor;
 use Win32::Console::ANSI;
 use Data::Dumper;
+use Bucket;
 
 
 sub New {
@@ -65,6 +66,7 @@ sub IsEmpty {
 	
 	my $result = !$exists || $empty;
 	
+	#print Dumper($self->{Grid}->{$coords}) . "\n";
 	#print "isempty: " . $result . "\n";
 	return $result;
 }
@@ -81,9 +83,10 @@ sub SetEntity {
 }
 
 sub RemoveEntity {
-	my ($self, $coords, $entity) = @_;
+	my ($self, $coords, $entityType) = @_;
 	
-	delete $self->{Grid}->{$coords};
+	my $entities = $self->GetEntity($coords);
+	@$entities = grep { $_->GetType() ne $entityType } @$entities
 }
 
 sub CreateEntityNearby {
@@ -118,13 +121,16 @@ sub MoveEntity {
 	foreach my $adjacentCoord (@adjacentCoords) {
 		my $entities = $self->GetEntity($adjacentCoord);
 		
-		if ($entity == undef) {
+		if ($entities == undef) {
 			return {
 				NewCoords => $adjacentCoord,
 				TargetEntity => undef,
 			}
 		}
-		elsif ($entity->GetType() ne $movingEntity->GetType()) {
+		elsif (Bucket->HasType($entities, $movingEntity->GetType())) {
+			# if same type do not move there, check next adjacent spot
+		}
+		else {
 			return {
 				NewCoords => $adjacentCoord,
 				TargetEntity => $entities
@@ -155,18 +161,17 @@ sub Draw {
 			my $coords = $row . ',' . $col;
 			
 			my $entities = $self->GetEntity($coords);
-			foreach my $entity (@$entities) {
+			if ($entities && @$entities > 0) {
+				my $entity = $entities->[0];
 				print "";
-				if ($entity) {
-					my $symbol = $entity->GetSymbol();
-					print color($colors->{$symbol});
-					print $symbol;
-					print color('white');
-				}
-				else {
-					print " ";
-				}
+				my $symbol = $entity->GetSymbol();
+				print color($colors->{$symbol});
+				print $symbol;
+				print color('white');
 				print "";
+			} 
+			else {
+				print " ";
 			}
 		}
 		

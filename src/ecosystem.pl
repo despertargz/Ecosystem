@@ -4,11 +4,11 @@ use warnings;
 
 use FindBin qw($Bin);
 use lib $Bin;
+
 use Time::HiRes qw(sleep usleep);
 use Carp::Always;
 
 use Grid;
-
 use CoordinateFinder;
 use Tree;
 use LumberJack;
@@ -37,9 +37,9 @@ my $bearOptions = {
 
 my $data = {
 	Counts => {
-		Tree => 1,
-		LumberJack => 1,
-		Bear => 0
+		Tree => 5,
+		LumberJack => 4,
+		Bear => 1
 	},
 	MonthlyData => {
 		Lumber => 0,
@@ -55,14 +55,15 @@ $tree->{Age} = 12;
 my $lumberJack = LumberJack->New($grid, $data, $lumberJackOptions);
 my $bear = Bear->New($grid, $data, $bearOptions);
 
-$grid->SetEntity("1,1", $tree);
-#$grid->SetEntity("9,9", $lumberJack);
-#$grid->SetEntity("8,9", $lumberJack);
-#$grid->SetEntity("7,9", $lumberJack);
-#$grid->SetEntity("6,9", $lumberJack);
-#$grid->SetEntity("5,9", $lumberJack);
-#$grid->SetEntity("4,9", $lumberJack);
-#$grid->SetEntity("3,9", $lumberJack);
+$grid->SetEntity("1,1", Tree->New($grid, $data, $treeOptions));
+$grid->SetEntity("1,2", Tree->New($grid, $data, $treeOptions));
+$grid->SetEntity("1,3", Tree->New($grid, $data, $treeOptions));
+$grid->SetEntity("1,4", Tree->New($grid, $data, $treeOptions));
+$grid->SetEntity("1,5", Tree->New($grid, $data, $treeOptions));
+$grid->SetEntity("6,9", $lumberJack);
+$grid->SetEntity("8,9", $lumberJack);
+$grid->SetEntity("7,9", $lumberJack);
+$grid->SetEntity("5,9", $lumberJack);
 #$grid->SetEntity("5,5", $bear);
 
 
@@ -89,6 +90,6 @@ foreach my $month (1..$MONTHS) {
 	print "lumber: " . $data->{MonthlyData}->{Lumber} . "\n";
 	print "maws: " . $data->{MonthlyData}->{Maws} . "\n";
 	print "\n";
-	#sleep(.10);
+	sleep(.25);
 	
 }

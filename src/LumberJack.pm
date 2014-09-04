@@ -1,5 +1,8 @@
 package LumberJack;
 
+use Bucket;
+use Data::Dumper;
+
 sub New {
 	my ($class, $grid, $data, $lumberJackOptions) = @_;
 	
@@ -19,19 +22,23 @@ sub TakeTurn {
 		my $moveResult = $self->{Grid}->MoveEntity($self, $coords);
 		my $targetEntities = $moveResult->{TargetEntity};
 			
+		#print Dumper($moveResult);
 		#print "Moving to spot with " . $targetEntityType . "\n";
-		if (Bucket->HasType($targetEntities, "Bear") {
-			$self->{Grid}->RemoveEntity($coords, $self);
+		
+		#print Dumper($targetEntities) . "\n";
+		
+		if (Bucket->HasType($targetEntities, "Bear")) {
+			$self->{Grid}->RemoveEntity($coords, $self->GetType());
 			
 			$self->{Data}->{MonthlyData}->{Maws}++;
 			$self->{Data}->{Counts}->{LumberJack}--;
 			return;
 		}
-		elsif (Bucket->HasType($targetEntities, "Tree") {
-			#print "Lumber jack cut down a tree!\n";
+		elsif (Bucket->HasType($targetEntities, "Tree")) {
+			print "Lumber jack cut down a tree!\n";
 			
-			$self->{Grid}->RemoveEntity($moveResult->{NewCoords}, $moveResult->{TargetEntity});
-			$self->{Grid}->RemoveEntity($coords, $self);
+			$self->{Grid}->RemoveEntity($moveResult->{NewCoords}, "Tree");
+			$self->{Grid}->RemoveEntity($coords, $self->GetType());
 			$self->{Grid}->SetEntity($moveResult->{NewCoords}, $self);
 			
 			$self->{Data}->{MonthlyData}->{Lumber} += 1;
@@ -40,8 +47,8 @@ sub TakeTurn {
 			return;
 		}
 		elsif (Bucket->HasType($targetEntities, "ElderTree")) {
-			$self->{Grid}->RemoveEntity($moveResult->{TargetEntity}, $moveResult->{NewCoords});
-			$self->{Grid}->RemoveEntity($coords, $self);
+			$self->{Grid}->RemoveEntity($moveResult->{NewCoords}, "ElderTree");
+			$self->{Grid}->RemoveEntity($coords, $self->GetType());
 			$self->{Grid}->SetEntity($moveResult->{NewCoords}, $self);
 			
 			$self->{Data}->{MonthlyData}->{Lumber} += 2;
@@ -50,8 +57,8 @@ sub TakeTurn {
 		}
 		else {
 			#empty space or sappling, move there
-			#print "Moving from $coords to " . $moveResult->{NewCoords} . "\n";
-			$self->{Grid}->RemoveEntity($coords, $self);
+			print "Moving from $coords to " . $moveResult->{NewCoords} . "\n";
+			$self->{Grid}->RemoveEntity($coords, $self->GetType());
 			$self->{Grid}->SetEntity($moveResult->{NewCoords}, $self);
 			$coords = $moveResult->{NewCoords};
 		}

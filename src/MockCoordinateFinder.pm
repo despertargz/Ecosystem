@@ -1,17 +1,17 @@
 package MockCoordinateFinder;
 
 sub New {
-	my ($class, $coordinateToMoveTo) = @_;
+	my ($class, $coordinatesToMoveTo) = @_;
 	
 	return bless {
-		CoordinateToMoveTo => $coordinateToMoveTo
+		CoordinatesToMoveTo => $coordinatesToMoveTo
 	};
 }
 
 sub GetAdjacentCoordinates {
 	my ($self, $grid, $centerCoord) = @_;
 	
-	return $self->{CoordinateToMoveTo};
+	return shift $self->{CoordinatesToMoveTo};
 }
 
 return 1;
