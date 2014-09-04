@@ -116,7 +116,7 @@ sub MoveEntity {
 	
 	my @adjacentCoords = $self->{CoordinateFinder}->GetAdjacentCoordinates($self->{Size}, $coords);
 	foreach my $adjacentCoord (@adjacentCoords) {
-		my $entity = $self->GetOneEntity($adjacentCoord, $movingEntity->GetType());
+		my $entities = $self->GetEntity($adjacentCoord);
 		
 		if ($entity == undef) {
 			return {
@@ -127,7 +127,7 @@ sub MoveEntity {
 		elsif ($entity->GetType() ne $movingEntity->GetType()) {
 			return {
 				NewCoords => $adjacentCoord,
-				TargetEntity => $entity
+				TargetEntity => $entities
 			}
 		}
 	}

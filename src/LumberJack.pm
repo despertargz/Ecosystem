@@ -17,20 +17,17 @@ sub TakeTurn {
 	
 	foreach (1..$self->{Options}->{Moves}) {
 		my $moveResult = $self->{Grid}->MoveEntity($self, $coords);
-		
-		my $targetEntityType = defined($moveResult->{TargetEntity}) ?
-			$moveResult->{TargetEntity}->GetType() :
-			undef;
+		my $targetEntities = $moveResult->{TargetEntity};
 			
 		#print "Moving to spot with " . $targetEntityType . "\n";
-		if ($targetEntityType eq "Bear") {
+		if (Bucket->HasType($targetEntities, "Bear") {
 			$self->{Grid}->RemoveEntity($coords, $self);
 			
 			$self->{Data}->{MonthlyData}->{Maws}++;
 			$self->{Data}->{Counts}->{LumberJack}--;
 			return;
 		}
-		elsif ($targetEntityType eq "Tree") {
+		elsif (Bucket->HasType($targetEntities, "Tree") {
 			#print "Lumber jack cut down a tree!\n";
 			
 			$self->{Grid}->RemoveEntity($moveResult->{NewCoords}, $moveResult->{TargetEntity});
@@ -42,7 +39,7 @@ sub TakeTurn {
 			
 			return;
 		}
-		elsif ($targetEntityType eq "ElderTree") {
+		elsif (Bucket->HasType($targetEntities, "ElderTree")) {
 			$self->{Grid}->RemoveEntity($moveResult->{TargetEntity}, $moveResult->{NewCoords});
 			$self->{Grid}->RemoveEntity($coords, $self);
 			$self->{Grid}->SetEntity($moveResult->{NewCoords}, $self);
@@ -51,11 +48,8 @@ sub TakeTurn {
 			$self->{Data}->{Counts}->{Tree}--;
 			return;
 		}
-		elsif ($targetEntityType eq "Sapling") {
-			#if sappling dont kill him
-		}
 		else {
-			#empty space, move there
+			#empty space or sappling, move there
 			#print "Moving from $coords to " . $moveResult->{NewCoords} . "\n";
 			$self->{Grid}->RemoveEntity($coords, $self);
 			$self->{Grid}->SetEntity($moveResult->{NewCoords}, $self);
