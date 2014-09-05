@@ -81,6 +81,10 @@ foreach my $month (1..$MONTHS) {
 		}
 	}
 	
+	if ($month % $MONTHS_PER_YEAR == 0) {
+		
+	}
+	
 	system 'cls';
 	$grid->Draw();
 	
@@ -91,5 +95,60 @@ foreach my $month (1..$MONTHS) {
 	print "maws: " . $data->{MonthlyData}->{Maws} . "\n";
 	print "\n";
 	sleep(.25);
+	
+}
+
+sub RemoveBear {
+	my ($grid) = @_;
+	
+	my $coords = shuffle($grid->GetCoords());
+	foreach my $coord ($coords) {
+		if (Bucket->HasType($coord, "Bear")) {
+			$data->{CountS}->{Bear}--;
+			$grid->RemoveEntity($coord, "Bear");
+			print "ZooKeeper has removed a bear!";
+		}
+	}
+}
+
+sub AddRandomEntity {
+	my ($grid, $type, $options) = @_;
+	
+	my $x = int(rand($grid->{Size}));
+	my $y = int(rand($grid->{Size}));
+	$grid->SetEntity("$x,$y", $type->New($options));
+}
+
+sub RemoveRandomEntity {
+	my ($grid, $type) = @_;
+}
+
+sub CheckMaws {
+	my ($data, $grid, $bearOptions) = @_;
+
+	if ($data->{MonthlyData}->{Maws} > 0) {
+		RemoveBear($grid);
+	}
+	else {
+		AddEntity($grid, "Bear" $bearOptions);
+	}
+	
+	$data->{MonthlyData}->{Maws} = 0;
+}
+
+sub Add
+
+sub CheckLumber {
+	my ($data, $grid, $lumberJackOptions) = @_;
+	
+	my $lumberJacksToHire = int($data->{MonthlyData}->{Lumber} / $data->{Counts}->{LumberJack});
+	foreach (1..$lumberJacksToHire) {
+	}
+}
+
+sub IncrementYear {
+	my ($data, $grid, $bearOptions, $lumberJackOptions) = @_;
+	
+	CheckMaws($data, $grid, $bearOptions);
 	
 }
