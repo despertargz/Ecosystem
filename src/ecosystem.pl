@@ -5,7 +5,7 @@ use warnings;
 use FindBin qw($Bin);
 use lib $Bin;
 
-use Time::HiRes qw(sleep usleep);
+use Time::HiRes qw(sleep usleep gettimeofday);
 use Carp::Always;
 use List::Util 'shuffle';
 
@@ -68,7 +68,10 @@ foreach my $entityType (keys $spawnPercentages) {
 	#DEBUG: ADD ONE OF EACH;
 	#AddRandomEntity($data, $grid, $options, $entityType);
 	foreach (1..$numEntitiesToSpawn) {
-		$grid->AddRandomEntity($entityType);
+		my $spawnResult = $grid->AddRandomEntity($entityType);
+		if (!$spawnResult) {
+			print "FAILED TO SPAWN: $entityType";
+		}
 	}
 }
 
@@ -79,15 +82,27 @@ my $MONTHS_TO_SIMULATE = $YEARS * $MONTHS_PER_YEAR;
 $Data::Dumper::Maxdepth = 2;
 
 foreach my $month (1..$MONTHS_TO_SIMULATE) {
+	#my $time_start = gettimeofday();
+
+	my $debugTreeCount = 0;
 	foreach my $coord ($grid->GetCoords()) {
+		#my $coord_start = gettimeofday();
+		
 		my $ecoEntities = $grid->GetEntity($coord);
 		if (defined($ecoEntities)) {
 			foreach my $ecoEntity (@$ecoEntities) {
 				#print "[" . $ecoEntity->GetType() . "] taking turn...\n";
 				$ecoEntity->TakeTurn($coord);
+				if ($ecoEntity->GetType() eq "Sapling" || $ecoEntity->GetType() eq "Tree" || $ecoEntity->GetType() eq "ElderTree") {
+					$debugTreeCount++;
+				}
 			}
 		}
+		
+		#print((gettimeofday() - $coord_start) . "\n");
 	}
+	
+	#print((gettimeofday() - $time_start) . "\n");
 	
 	if ($month % $MONTHS_PER_YEAR == 0) {
 		RunYearlyEvents($data, $grid, $options);
@@ -95,7 +110,6 @@ foreach my $month (1..$MONTHS_TO_SIMULATE) {
 	
 	system 'cls';
 	$grid->Draw();
-	
 	print "Year " . int($month / $MONTHS_PER_YEAR) . "." . ($month % $MONTHS_PER_YEAR) . "\n";
 	print "--------------------\n";
 	print "trees: " . $data->{Counts}->{Tree} . "\n";
@@ -104,8 +118,14 @@ foreach my $month (1..$MONTHS_TO_SIMULATE) {
 	print "--------------------\n";
 	print "lumber: " . $data->{MonthlyData}->{Lumber} . "\n";
 	print "maws: " . $data->{MonthlyData}->{Maws} . "\n";
+	print "--------------------\n";
+	print "real tree count: $debugTreeCount\n";
 	print "\n";
-	sleep(.10);
+	
+	
+
+	#my $wait = <>;
+	#sleep(.05);
 	
 }
 

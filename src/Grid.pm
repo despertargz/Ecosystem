@@ -5,7 +5,7 @@ use Win32::Console::ANSI;
 use Data::Dumper;
 use Bucket;
 use List::Util 'shuffle';
-
+use IO::Handle;
 
 sub New {
 	my ($class, $size, $data, $options, $coordinateFinder) = @_;
@@ -65,6 +65,9 @@ sub IsEmpty {
 	}
 	
 	my $result = !$exists || $empty;
+	#print "---------------------\n";
+	#print Dumper($self->{Grid}->{$coords});
+	#print "ISEMPTYRESULT: $result\n\n";
 	return $result;
 }
 
@@ -93,7 +96,7 @@ sub CreateEntityNearby {
 	
 	foreach my $coord (@adjacentCoords) {
 		if ($self->IsEmpty($coord)) {
-			$self->{Grid}->{$coord} = [$entity];
+			$self->SetEntity($coord, $entity);
 			return 1;
 		}
 	}
@@ -154,6 +157,8 @@ sub Draw {
 		B => "yellow"
 	};
 	
+	STDOUT->autoflush(0);
+	my $outputBuffer = "";
 	foreach my $row (0..$self->{Size} - 1) {
 		foreach my $col (0..$self->{Size} - 1) {
 			my $coords = $row . ',' . $col;
@@ -161,20 +166,36 @@ sub Draw {
 			my $entities = $self->GetEntity($coords);
 			if ($entities && @$entities > 0) {
 				my $entity = $entities->[-1];
-				print "";
+				#print "";
+				
 				my $symbol = $entity->GetSymbol();
-				print color($colors->{$symbol});
-				print $symbol;
-				print color('white');
-				print "";
+				
+				#print color($colors->{$symbol});
+				#print $symbol;
+				#print color('white');
+				#print "";
+				
+				#if (0) {
+					#$outputBuffer .= color($colors->{$symbol}) . $symbol . color('white');
+				#}
+				
+				$outputBuffer .= color("white on_$colors->{$symbol}") . "  " . color('black on_white');
+				#$outputBuffer .= color($colors->{$symbol}) . $symbol . color('white');
+				
+				
 			} 
 			else {
-				print " ";
+				#print " ";
+				$outputBuffer .= "  ";
 			}
 		}
 		
-		print "\n";
+		#print "\n";
+		$outputBuffer .= "\n";
 	}
+	
+	print $outputBuffer;
+	#STDOUT->flush();
 }
 
 sub AddRandomEntity {
@@ -185,20 +206,22 @@ sub AddRandomEntity {
 		my $x = int(rand($self->{Size}));
 		my $y = int(rand($self->{Size}));
 		
-		my $entity = $self->GetOneEntity("$x,$y", $typeOfEntity);
-		if (!defined($entity)) {
+		my $entities = $self->GetEntity("$x,$y", $typeOfEntity);
+		if (!defined($entities)) {
 			#print "Yearly spawn of $typeOfEntity to $x,$y\n";
 			
 			my $entityOptions = $self->{Options}->{$typeOfEntity};
 			my $entity = $typeOfEntity->New($self, $self->{Data}, $entityOptions);
 			$self->SetEntity("$x,$y", $entity);
 			$self->{Data}->{Counts}->{$typeOfEntity}++;
-			last;
+			return 1;
 		}
 		else {
 			#print "spot taken ($x,$y)\n";
 		}
 	}
+	
+	return 0;
 }
 
 sub RemoveRandomEntity {

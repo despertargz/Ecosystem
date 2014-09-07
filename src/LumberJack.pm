@@ -64,14 +64,16 @@ sub TakeTurn {
 			#empty space or sappling, move there
 			#print "[LumberJack] moves onto [" . $typeText . "]\n";
 			
-			my @types = map { $_->GetType() } @$targetEntities;
-			my $typeText = join ',', @types;
 
-			#print Dumper($targetEntities) . "\n";
+			
 			
 			$self->{Grid}->RemoveEntity($coords, $self->GetType());
 			$self->{Grid}->SetEntity($moveResult->{NewCoords}, $self);
 			$coords = $moveResult->{NewCoords};
+			
+			#print Dumper($self->{Grid}->GetEntity($moveResult->{NewCoords}));
+			
+			#print "[LumberJack] is living with $typeText\n";
 		}
 	}
 }
