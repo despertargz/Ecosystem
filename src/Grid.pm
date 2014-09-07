@@ -187,7 +187,7 @@ sub AddRandomEntity {
 		
 		my $entity = $self->GetOneEntity("$x,$y", $typeOfEntity);
 		if (!defined($entity)) {
-			print "Yearly spawn of $typeOfEntity to $x,$y\n";
+			#print "Yearly spawn of $typeOfEntity to $x,$y\n";
 			
 			my $entityOptions = $self->{Options}->{$typeOfEntity};
 			my $entity = $typeOfEntity->New($self, $self->{Data}, $entityOptions);
@@ -196,7 +196,7 @@ sub AddRandomEntity {
 			last;
 		}
 		else {
-			print "spot taken ($x,$y)\n";
+			#print "spot taken ($x,$y)\n";
 		}
 	}
 }
@@ -207,10 +207,10 @@ sub RemoveRandomEntity {
 	my @coords = shuffle($self->GetCoords());
 	foreach my $coord (@coords) {
 		my $entities = $self->GetEntity($coord);
-		if (Bucket->HasType($coord, $typeOfEntity)) {	
+		if (Bucket->HasType($entities, $typeOfEntity)) {	
 			$self->RemoveEntity($coord, $typeOfEntity);
 			$self->{Data}->{Counts}->{$typeOfEntity}--;
-			print "Yearly removal of [$typeOfEntity]\n";
+			#print "Yearly removal of [$typeOfEntity]\n";
 			last;
 		}
 	}

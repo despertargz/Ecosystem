@@ -15,14 +15,12 @@ sub New {
 sub TakeTurn {
 	my ($self, $coords) = @_;
 	
-	print $self->{Data};
-	
 	foreach (1..$self->{Options}->{Moves}) {
 		my $moveResult = $self->{Grid}->MoveEntity($self, $coords);
 		my $targetEntities = $moveResult->{TargetEntity};
 
 		if (Bucket->HasType($targetEntities, "LumberJack")) {
-			print "[Bear] mawed [LumberJack]\n";
+			#print "[Bear] mawed [LumberJack]\n";
 		
 			$self->{Grid}->RemoveEntity($moveResult->{NewCoords}, "LumberJack");
 			$self->{Grid}->RemoveEntity($coords, $self->GetType());
@@ -35,7 +33,7 @@ sub TakeTurn {
 				$self->{Grid}->AddRandomEntity("LumberJack");
 			}
 			
-			print "Finished mawing\n";
+			#print "Finished mawing\n";
 			
 			return;
 		}

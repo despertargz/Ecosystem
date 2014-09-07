@@ -49,12 +49,12 @@ my $data = {
 };
 
 my $spawnPercentages = {
-	Bear => .10,
+	Bear => .04,
 	LumberJack => .10,
 	Tree => .50
 };
 
-my $gridSize = 5;
+my $gridSize = 25;
 my $totalSpots = $gridSize * $gridSize;
 
 my $coordinateFinder = CoordinateFinder->New();
@@ -83,7 +83,7 @@ foreach my $month (1..$MONTHS_TO_SIMULATE) {
 		my $ecoEntities = $grid->GetEntity($coord);
 		if (defined($ecoEntities)) {
 			foreach my $ecoEntity (@$ecoEntities) {
-				print "[" . $ecoEntity->GetType() . "] taking turn...\n";
+				#print "[" . $ecoEntity->GetType() . "] taking turn...\n";
 				$ecoEntity->TakeTurn($coord);
 			}
 		}
@@ -93,10 +93,9 @@ foreach my $month (1..$MONTHS_TO_SIMULATE) {
 		RunYearlyEvents($data, $grid, $options);
 	}
 	
-	#system 'cls';
+	system 'cls';
 	$grid->Draw();
 	
-	print "Global: $data";
 	print "Year " . int($month / $MONTHS_PER_YEAR) . "." . ($month % $MONTHS_PER_YEAR) . "\n";
 	print "--------------------\n";
 	print "trees: " . $data->{Counts}->{Tree} . "\n";
@@ -106,7 +105,7 @@ foreach my $month (1..$MONTHS_TO_SIMULATE) {
 	print "lumber: " . $data->{MonthlyData}->{Lumber} . "\n";
 	print "maws: " . $data->{MonthlyData}->{Maws} . "\n";
 	print "\n";
-	sleep(.25);
+	sleep(.10);
 	
 }
 
