@@ -7,6 +7,7 @@ use lib $Bin;
 
 use Time::HiRes qw(sleep usleep);
 use Carp::Always;
+use List::Util 'shuffle';
 
 use Grid;
 use CoordinateFinder;
@@ -31,15 +32,15 @@ my $options = {
 		Moves => 3
 	},
 	Bear => {
-		Moves = 5
+		Moves => 5
 	}
-}
+};
 
 my $data = {
 	Counts => {
-		Tree => 5,
-		LumberJack => 4,
-		Bear => 1
+		Tree => 0,
+		LumberJack => 0,
+		Bear => 0
 	},
 	MonthlyData => {
 		Lumber => 0,
@@ -47,14 +48,31 @@ my $data = {
 	}
 };
 
+my $spawnPercentages = {
+	Bear => .02,
+	LumberJack => .10,
+	Tree => .50
+};
+
+my $gridSize = 25;
+my $totalSpots = $gridSize * $gridSize;
+
 my $coordinateFinder = CoordinateFinder->New();
-my $grid = Grid->New(25, $coordinateFinder);
+my $grid = Grid->New($gridSize, $coordinateFinder);
 
-
+foreach my $entityType (keys $spawnPercentages) {
+	my $numEntitiesToSpawn = int($totalSpots * $spawnPercentages->{$entityType});
+	$data->{Counts}->{$entityType} = $numEntitiesToSpawn;
+	print "spawning $numEntitiesToSpawn $entityType\n";
+	
+	foreach (1..$numEntitiesToSpawn) {
+		AddRandomEntity($data, $grid, $options, $entityType);
+	}
+}
 
 my $MONTHS_PER_YEAR = 12;
 my $YEARS = 400;
-my $MONTHS_TO_SIMILUATE = $YEARS * $MONTHS_PER_YEAR;
+my $MONTHS_TO_SIMULATE = $YEARS * $MONTHS_PER_YEAR;
 
 foreach my $month (1..$MONTHS_TO_SIMULATE) {
 	foreach my $coord ($grid->GetCoords()) {
@@ -74,8 +92,11 @@ foreach my $month (1..$MONTHS_TO_SIMULATE) {
 	$grid->Draw();
 	
 	print "Year " . int($month / $MONTHS_PER_YEAR) . "." . ($month % $MONTHS_PER_YEAR) . "\n";
+	print "--------------------\n";
 	print "trees: " . $data->{Counts}->{Tree} . "\n";
 	print "lumberjacks: " . $data->{Counts}->{LumberJack} . "\n";
+	print "bears: " . $data->{Counts}->{Bear} . "\n";
+	print "--------------------\n";
 	print "lumber: " . $data->{MonthlyData}->{Lumber} . "\n";
 	print "maws: " . $data->{MonthlyData}->{Maws} . "\n";
 	print "\n";
@@ -83,30 +104,28 @@ foreach my $month (1..$MONTHS_TO_SIMULATE) {
 	
 }
 
-sub RemoveBear {
-	my ($grid) = @_;
-	
-	my $coords = shuffle($grid->GetCoords());
-	foreach my $coord ($coords) {
-		if (Bucket->HasType($coord, "Bear")) {
-			$data->{CountS}->{Bear}--;
-			$grid->RemoveEntity($coord, "Bear");
-			print "ZooKeeper has removed a bear!";
-		}
-	}
-}
-
 sub AddRandomEntity {
 	my ($data, $grid, $options, $typeOfEntity) = @_;
 	
-	my $x = int(rand($grid->{Size}));
-	my $y = int(rand($grid->{Size}));
-	
-	my $entityOptions = $globalOptions->{$typeOfEntity};
-	my $entity = $typeOfEntity->New($grid, $data, $options);
-	$grid->SetEntity("$x,$y", $entity);
-	
-	$data->{Counts}->{$typeOfEntity}++;
+	my $numAttempts = 1000;
+	for (1..$numAttempts) {
+		my $x = int(rand($grid->{Size}));
+		my $y = int(rand($grid->{Size}));
+		
+		my $entity = $grid->GetOneEntity("$x,$y", $typeOfEntity);
+		if (!defined($entity)) {
+			print "adding $typeOfEntity to $x,$y\n";
+			
+			my $entityOptions = $options->{$typeOfEntity};
+			my $entity = $typeOfEntity->New($grid, $data, $entityOptions);
+			$grid->SetEntity("$x,$y", $entity);
+			$data->{Counts}->{$typeOfEntity}++;
+			last;
+		}
+		else {
+			print "spot taken ($x,$y)\n";
+		}
+	}
 }
 
 sub RemoveRandomEntity {
@@ -128,10 +147,10 @@ sub CheckMaws {
 	my ($data, $grid, $options) = @_;
 
 	if ($data->{MonthlyData}->{Maws} > 0) {
-		RemoveBear($grid);
+		RemoveRandomEntity($grid, "Bear");
 	}
 	else {
-		AddEntity($grid, $data, 
+		AddRandomEntity($data, $grid, $options, "Bear");
 	}
 	
 	$data->{MonthlyData}->{Maws} = 0;
@@ -146,7 +165,7 @@ sub CheckLumber {
 			AddRandomEntity($data, $grid, $options, "LumberJack");
 		}
 	}
-	else if ($data->{Counts}->{LumberJack} > 1) {
+	elsif ($data->{Counts}->{LumberJack} > 1) {
 		RemoveRandomEntity($grid, $options, "LumberJack");
 	}
 	
