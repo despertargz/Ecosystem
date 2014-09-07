@@ -22,20 +22,23 @@ sub TakeTurn {
 		my $moveResult = $self->{Grid}->MoveEntity($self, $coords);
 		my $targetEntities = $moveResult->{TargetEntity};
 			
-		#print Dumper($moveResult);
-		#print "Moving to spot with " . $targetEntityType . "\n";
-		
-		#print Dumper($targetEntities) . "\n";
-		
 		if (Bucket->HasType($targetEntities, "Bear")) {
+			print "[LumberJack] got himself mawed\n";
+		
 			$self->{Grid}->RemoveEntity($coords, $self->GetType());
 			
 			$self->{Data}->{MonthlyData}->{Maws}++;
 			$self->{Data}->{Counts}->{LumberJack}--;
+			
+			if ($self->{Data}->{Counts}->{LumberJack} == 0) {
+				$self->{Grid}->AddRandomEntity("LumberJack");
+			}
+			
+			print "Finished getting mawed\n";
 			return;
 		}
 		elsif (Bucket->HasType($targetEntities, "Tree")) {
-			print "Lumber jack cut down a tree!\n";
+			print "[LumberJack] cut down a tree!\n";
 			
 			$self->{Grid}->RemoveEntity($moveResult->{NewCoords}, "Tree");
 			$self->{Grid}->RemoveEntity($coords, $self->GetType());
@@ -47,6 +50,8 @@ sub TakeTurn {
 			return;
 		}
 		elsif (Bucket->HasType($targetEntities, "ElderTree")) {
+			print "[LumberJack] cut down an elder tree!\n";
+		
 			$self->{Grid}->RemoveEntity($moveResult->{NewCoords}, "ElderTree");
 			$self->{Grid}->RemoveEntity($coords, $self->GetType());
 			$self->{Grid}->SetEntity($moveResult->{NewCoords}, $self);
@@ -57,7 +62,11 @@ sub TakeTurn {
 		}
 		else {
 			#empty space or sappling, move there
-			print "Moving from $coords to " . $moveResult->{NewCoords} . "\n";
+			my @types = map { $_->GetType() } @$targetEntities;
+			my $typeText = join ',', @types;
+			print "[LumberJack] moves onto [" . $typeText . "]\n";
+			print Dumper($targetEntities) . "\n";
+			
 			$self->{Grid}->RemoveEntity($coords, $self->GetType());
 			$self->{Grid}->SetEntity($moveResult->{NewCoords}, $self);
 			$coords = $moveResult->{NewCoords};

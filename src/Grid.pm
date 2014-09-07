@@ -4,12 +4,15 @@ use Term::ANSIColor;
 use Win32::Console::ANSI;
 use Data::Dumper;
 use Bucket;
+use List::Util 'shuffle';
 
 
 sub New {
-	my ($class, $size, $coordinateFinder) = @_;
+	my ($class, $size, $data, $options, $coordinateFinder) = @_;
 
 	return bless {
+		Data => $data,
+		Options => $options,
 		Size => $size,
 		Grid => {},
 		CoordinateFinder => $coordinateFinder
@@ -54,9 +57,6 @@ sub GetOneEntity {
 sub IsEmpty {
 	my ($self, $coords) = @_;
 	
-	#print Dumper($self);
-	#print "\n";
-	
 	my $exists = exists $self->{Grid}->{$coords};
 	my $empty = 0;
 	
@@ -65,9 +65,6 @@ sub IsEmpty {
 	}
 	
 	my $result = !$exists || $empty;
-	
-	#print Dumper($self->{Grid}->{$coords}) . "\n";
-	#print "isempty: " . $result . "\n";
 	return $result;
 }
 
@@ -122,6 +119,7 @@ sub MoveEntity {
 		my $entities = $self->GetEntity($adjacentCoord);
 		
 		if ($entities == undef) {
+			# empty space
 			return {
 				NewCoords => $adjacentCoord,
 				TargetEntity => undef,
@@ -162,7 +160,7 @@ sub Draw {
 			
 			my $entities = $self->GetEntity($coords);
 			if ($entities && @$entities > 0) {
-				my $entity = $entities->[0];
+				my $entity = $entities->[-1];
 				print "";
 				my $symbol = $entity->GetSymbol();
 				print color($colors->{$symbol});
@@ -176,6 +174,45 @@ sub Draw {
 		}
 		
 		print "\n";
+	}
+}
+
+sub AddRandomEntity {
+	my ($self, $typeOfEntity) = @_;
+	
+	my $numAttempts = 1000;
+	for (1..$numAttempts) {
+		my $x = int(rand($self->{Size}));
+		my $y = int(rand($self->{Size}));
+		
+		my $entity = $self->GetOneEntity("$x,$y", $typeOfEntity);
+		if (!defined($entity)) {
+			print "Yearly spawn of $typeOfEntity to $x,$y\n";
+			
+			my $entityOptions = $self->{Options}->{$typeOfEntity};
+			my $entity = $typeOfEntity->New($self, $self->{Data}, $entityOptions);
+			$self->SetEntity("$x,$y", $entity);
+			$self->{Data}->{Counts}->{$typeOfEntity}++;
+			last;
+		}
+		else {
+			print "spot taken ($x,$y)\n";
+		}
+	}
+}
+
+sub RemoveRandomEntity {
+	my ($self, $typeOfEntity) = @_;
+	
+	my @coords = shuffle($self->GetCoords());
+	foreach my $coord (@coords) {
+		my $entities = $self->GetEntity($coord);
+		if (Bucket->HasType($coord, $typeOfEntity)) {	
+			$self->RemoveEntity($coord, $typeOfEntity);
+			$self->{Data}->{Counts}->{$typeOfEntity}--;
+			print "Yearly removal of [$typeOfEntity]\n";
+			last;
+		}
 	}
 }
 

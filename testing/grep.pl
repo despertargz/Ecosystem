@@ -1,7 +1,6 @@
 use strict;
 use warnings;
 
-my @list = ("giraf", "bear", "tiger");
-@list = grep { $_ ne "bear" } @list;
-
-print "@list";
+my $nums = { a => 10 };
+$nums->{a}--;
+print $nums->{a};
