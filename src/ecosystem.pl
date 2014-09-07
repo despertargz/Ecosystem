@@ -14,26 +14,26 @@ use Tree;
 use LumberJack;
 use Bear;
 
-my $treeOptions = {
-	Age => {
-		ElderTree => 120,
-		Tree => 12,
-		Sapling => 0
+my $options = {
+	Tree => {
+		Age => {
+			ElderTree => 120,
+			Tree => 12,
+			Sapling => 0
+		},
+		SpawnPercentage => {
+			ElderTree => .20,
+			Tree => .10,
+			Sappling => .00
+		}
 	},
-	SpawnPercentage => {
-		ElderTree => .20,
-		Tree => .10,
-		Sappling => .00
+	LumberJack => { 
+		Moves => 3
+	},
+	Bear => {
+		Moves = 5
 	}
-};
-
-my $lumberJackOptions = {
-	Moves => 3
-};
-
-my $bearOptions = {
-	Moves => 5
-};
+}
 
 my $data = {
 	Counts => {
@@ -50,28 +50,13 @@ my $data = {
 my $coordinateFinder = CoordinateFinder->New();
 my $grid = Grid->New(25, $coordinateFinder);
 
-my $tree = Tree->New($grid, $data, $treeOptions);
-$tree->{Age} = 12;
-my $lumberJack = LumberJack->New($grid, $data, $lumberJackOptions);
-my $bear = Bear->New($grid, $data, $bearOptions);
-
-$grid->SetEntity("1,1", Tree->New($grid, $data, $treeOptions));
-$grid->SetEntity("1,2", Tree->New($grid, $data, $treeOptions));
-$grid->SetEntity("1,3", Tree->New($grid, $data, $treeOptions));
-$grid->SetEntity("1,4", Tree->New($grid, $data, $treeOptions));
-$grid->SetEntity("1,5", Tree->New($grid, $data, $treeOptions));
-$grid->SetEntity("6,9", $lumberJack);
-$grid->SetEntity("8,9", $lumberJack);
-$grid->SetEntity("7,9", $lumberJack);
-$grid->SetEntity("5,9", $lumberJack);
-#$grid->SetEntity("5,5", $bear);
 
 
 my $MONTHS_PER_YEAR = 12;
 my $YEARS = 400;
-my $MONTHS = $YEARS * $MONTHS_PER_YEAR;
+my $MONTHS_TO_SIMILUATE = $YEARS * $MONTHS_PER_YEAR;
 
-foreach my $month (1..$MONTHS) {
+foreach my $month (1..$MONTHS_TO_SIMULATE) {
 	foreach my $coord ($grid->GetCoords()) {
 		my $ecoEntities = $grid->GetEntity($coord);
 		if (defined($ecoEntities)) {
@@ -82,13 +67,13 @@ foreach my $month (1..$MONTHS) {
 	}
 	
 	if ($month % $MONTHS_PER_YEAR == 0) {
-		
+		RunYearlyEvents($data, $grid, $options);
 	}
 	
 	system 'cls';
 	$grid->Draw();
 	
-	print "Year " . int($month / 12) . "." . ($month % 12) . "\n";
+	print "Year " . int($month / $MONTHS_PER_YEAR) . "." . ($month % $MONTHS_PER_YEAR) . "\n";
 	print "trees: " . $data->{Counts}->{Tree} . "\n";
 	print "lumberjacks: " . $data->{Counts}->{LumberJack} . "\n";
 	print "lumber: " . $data->{MonthlyData}->{Lumber} . "\n";
@@ -112,43 +97,65 @@ sub RemoveBear {
 }
 
 sub AddRandomEntity {
-	my ($grid, $type, $options) = @_;
+	my ($data, $grid, $options, $typeOfEntity) = @_;
 	
 	my $x = int(rand($grid->{Size}));
 	my $y = int(rand($grid->{Size}));
-	$grid->SetEntity("$x,$y", $type->New($options));
+	
+	my $entityOptions = $globalOptions->{$typeOfEntity};
+	my $entity = $typeOfEntity->New($grid, $data, $options);
+	$grid->SetEntity("$x,$y", $entity);
+	
+	$data->{Counts}->{$typeOfEntity}++;
 }
 
 sub RemoveRandomEntity {
-	my ($grid, $type) = @_;
+	my ($grid, $typeOfEntity) = @_;
+	
+	my @coords = shuffle($grid->GetCoords());
+	foreach my $coord (@coords) {
+		my $entities = $grid->GetEntity($coord);
+		if (Bucket->HasType($coord, $typeOfEntity)) {	
+			$grid->RemoveEntity($coord, $typeOfEntity);
+			$data->{Counts}->{$typeOfEntity}--;
+			print "Removing entity [$typeOfEntity]\n";
+			last;
+		}
+	}
 }
 
 sub CheckMaws {
-	my ($data, $grid, $bearOptions) = @_;
+	my ($data, $grid, $options) = @_;
 
 	if ($data->{MonthlyData}->{Maws} > 0) {
 		RemoveBear($grid);
 	}
 	else {
-		AddEntity($grid, "Bear" $bearOptions);
+		AddEntity($grid, $data, 
 	}
 	
 	$data->{MonthlyData}->{Maws} = 0;
 }
 
-sub Add
-
 sub CheckLumber {
-	my ($data, $grid, $lumberJackOptions) = @_;
+	my ($data, $grid, $options) = @_;
 	
 	my $lumberJacksToHire = int($data->{MonthlyData}->{Lumber} / $data->{Counts}->{LumberJack});
-	foreach (1..$lumberJacksToHire) {
+	if ($lumberJacksToHire > 0) {
+		foreach (1..$lumberJacksToHire) {
+			AddRandomEntity($data, $grid, $options, "LumberJack");
+		}
 	}
+	else if ($data->{Counts}->{LumberJack} > 1) {
+		RemoveRandomEntity($grid, $options, "LumberJack");
+	}
+	
+	$data->{MonthlyData}->{Lumber} = 0;
 }
 
-sub IncrementYear {
-	my ($data, $grid, $bearOptions, $lumberJackOptions) = @_;
+sub RunYearlyEvents {
+	my ($data, $grid, $options) = @_;
 	
-	CheckMaws($data, $grid, $bearOptions);
-	
+	CheckMaws($data, $grid, $options);
+	CheckLumber($data, $grid, $options)
 }
