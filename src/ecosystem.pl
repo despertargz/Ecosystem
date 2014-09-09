@@ -14,6 +14,7 @@ use CoordinateFinder;
 use Tree;
 use LumberJack;
 use Bear;
+use Bucket;
 
 my $options = {
 	Tree => {
@@ -45,6 +46,10 @@ my $data = {
 	MonthlyData => {
 		Lumber => 0,
 		Maws => 0
+	},
+	StaticData => {
+		TotalLumber => 0,
+		TotalMaws => 0,
 	}
 };
 
@@ -75,6 +80,7 @@ foreach my $entityType (keys $spawnPercentages) {
 	}
 }
 
+
 my $MONTHS_PER_YEAR = 12;
 my $YEARS = 400;
 my $MONTHS_TO_SIMULATE = $YEARS * $MONTHS_PER_YEAR;
@@ -84,7 +90,6 @@ $Data::Dumper::Maxdepth = 2;
 foreach my $month (1..$MONTHS_TO_SIMULATE) {
 	#my $time_start = gettimeofday();
 
-	my $debugTreeCount = 0;
 	foreach my $coord ($grid->GetCoords()) {
 		#my $coord_start = gettimeofday();
 		
@@ -93,13 +98,24 @@ foreach my $month (1..$MONTHS_TO_SIMULATE) {
 			foreach my $ecoEntity (@$ecoEntities) {
 				#print "[" . $ecoEntity->GetType() . "] taking turn...\n";
 				$ecoEntity->TakeTurn($coord);
-				if ($ecoEntity->GetType() eq "Sapling" || $ecoEntity->GetType() eq "Tree" || $ecoEntity->GetType() eq "ElderTree") {
-					$debugTreeCount++;
-				}
 			}
 		}
 		
 		#print((gettimeofday() - $coord_start) . "\n");
+	}
+	
+	#DEBUG-------------------
+	my $debugLumberJackCount = 0;
+	foreach my $coord ($grid->GetCoords()) {
+		my $ecoEntities = $grid->GetEntity($coord);
+		if (Bucket->HasType($ecoEntities, "LumberJack")) {
+			$debugLumberJackCount++;
+		}
+	}
+	#DEBUG-------------------
+	
+	if ($debugLumberJackCount != $data->{Counts}->{LumberJack}) {
+		#my $wait = <>;
 	}
 	
 	#print((gettimeofday() - $time_start) . "\n");
@@ -119,14 +135,13 @@ foreach my $month (1..$MONTHS_TO_SIMULATE) {
 	print "lumber: " . $data->{MonthlyData}->{Lumber} . "\n";
 	print "maws: " . $data->{MonthlyData}->{Maws} . "\n";
 	print "--------------------\n";
-	print "real tree count: $debugTreeCount\n";
+	print "total lumber: $data->{StaticData}->{TotalLumber}\n";
+	print "total maws: $data->{StaticData}->{TotalMaws}\n";
+	print "--------------------\n";
+	print "real LJ count: $debugLumberJackCount\n";
 	print "\n";
-	
-	
 
-	#my $wait = <>;
-	#sleep(.05);
-	
+	#sleep(1);
 }
 
 sub CheckMaws {

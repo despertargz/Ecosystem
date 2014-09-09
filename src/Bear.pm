@@ -27,6 +27,7 @@ sub TakeTurn {
 			$self->{Grid}->SetEntity($moveResult->{NewCoords}, $self);
 			
 			$self->{Data}->{MonthlyData}->{Maws}++;
+			$self->{Data}->{StaticData}->{TotalMaws}++;
 			$self->{Data}->{Counts}->{LumberJack}--;
 			
 			if ($self->{Data}->{Counts}->{LumberJack} == 0) {

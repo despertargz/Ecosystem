@@ -121,7 +121,8 @@ sub MoveEntity {
 	foreach my $adjacentCoord (@adjacentCoords) {
 		my $entities = $self->GetEntity($adjacentCoord);
 		
-		if ($entities == undef) {
+		if (!defined($entities)) {
+		
 			# empty space
 			return {
 				NewCoords => $adjacentCoord,
@@ -206,21 +207,18 @@ sub AddRandomEntity {
 		my $x = int(rand($self->{Size}));
 		my $y = int(rand($self->{Size}));
 		
-		my $entities = $self->GetEntity("$x,$y", $typeOfEntity);
+		my $entities = $self->GetEntity("$x,$y");
+	
 		if (!defined($entities)) {
-			#print "Yearly spawn of $typeOfEntity to $x,$y\n";
-			
 			my $entityOptions = $self->{Options}->{$typeOfEntity};
 			my $entity = $typeOfEntity->New($self, $self->{Data}, $entityOptions);
 			$self->SetEntity("$x,$y", $entity);
 			$self->{Data}->{Counts}->{$typeOfEntity}++;
 			return 1;
 		}
-		else {
-			#print "spot taken ($x,$y)\n";
-		}
 	}
 	
+	#print "FAILED TO SPAWN";
 	return 0;
 }
 

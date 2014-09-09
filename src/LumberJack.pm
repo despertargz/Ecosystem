@@ -16,18 +16,22 @@ sub New {
 sub TakeTurn {
 	my ($self, $coords) = @_;
 	
-	#print "LumberJack is taking a turn!\n";
-	
 	foreach (1..$self->{Options}->{Moves}) {
 		my $moveResult = $self->{Grid}->MoveEntity($self, $coords);
 		my $targetEntities = $moveResult->{TargetEntity};
 			
-		if (Bucket->HasType($targetEntities, "Bear")) {
+		#print "BEFORE: " . Dumper($targetEntities);
+			
+		if (!$moveResult->{NewCoords}) {
+			# could not move
+		}
+		elsif (Bucket->HasType($targetEntities, "Bear")) {
 			#print "[LumberJack] got himself mawed\n";
 		
 			$self->{Grid}->RemoveEntity($coords, $self->GetType());
 			
 			$self->{Data}->{MonthlyData}->{Maws}++;
+			$self->{Data}->{StaticData}->{TotalMaws}++;
 			$self->{Data}->{Counts}->{LumberJack}--;
 			
 			if ($self->{Data}->{Counts}->{LumberJack} == 0) {
@@ -45,6 +49,7 @@ sub TakeTurn {
 			$self->{Grid}->SetEntity($moveResult->{NewCoords}, $self);
 			
 			$self->{Data}->{MonthlyData}->{Lumber} += 1;
+			$self->{Data}->{StaticData}->{TotalLumber} += 1;
 			$self->{Data}->{Counts}->{Tree}--;
 			
 			return;
@@ -57,23 +62,17 @@ sub TakeTurn {
 			$self->{Grid}->SetEntity($moveResult->{NewCoords}, $self);
 			
 			$self->{Data}->{MonthlyData}->{Lumber} += 2;
+			$self->{Data}->{StaticData}->{TotalLumber} += 2;
 			$self->{Data}->{Counts}->{Tree}--;
 			return;
 		}
 		else {
 			#empty space or sappling, move there
-			#print "[LumberJack] moves onto [" . $typeText . "]\n";
-			
-
-			
 			
 			$self->{Grid}->RemoveEntity($coords, $self->GetType());
 			$self->{Grid}->SetEntity($moveResult->{NewCoords}, $self);
 			$coords = $moveResult->{NewCoords};
 			
-			#print Dumper($self->{Grid}->GetEntity($moveResult->{NewCoords}));
-			
-			#print "[LumberJack] is living with $typeText\n";
 		}
 	}
 }
