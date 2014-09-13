@@ -15,6 +15,7 @@ use Tree;
 use LumberJack;
 use Bear;
 use Bucket;
+use ConsoleGridDrawer;
 
 my $options = {
 	Tree => {
@@ -70,8 +71,6 @@ foreach my $entityType (keys $spawnPercentages) {
 	
 	print "spawning $numEntitiesToSpawn $entityType\n";
 	
-	#DEBUG: ADD ONE OF EACH;
-	#AddRandomEntity($data, $grid, $options, $entityType);
 	foreach (1..$numEntitiesToSpawn) {
 		my $spawnResult = $grid->AddRandomEntity($entityType);
 		if (!$spawnResult) {
@@ -80,6 +79,8 @@ foreach my $entityType (keys $spawnPercentages) {
 	}
 }
 
+
+my $gridDrawer = ConsoleGridDrawer->new();
 
 my $MONTHS_PER_YEAR = 12;
 my $YEARS = 400;
@@ -104,20 +105,6 @@ foreach my $month (1..$MONTHS_TO_SIMULATE) {
 		#print((gettimeofday() - $coord_start) . "\n");
 	}
 	
-	#DEBUG-------------------
-	my $debugLumberJackCount = 0;
-	foreach my $coord ($grid->GetCoords()) {
-		my $ecoEntities = $grid->GetEntity($coord);
-		if (Bucket->HasType($ecoEntities, "LumberJack")) {
-			$debugLumberJackCount++;
-		}
-	}
-	#DEBUG-------------------
-	
-	if ($debugLumberJackCount != $data->{Counts}->{LumberJack}) {
-		#my $wait = <>;
-	}
-	
 	#print((gettimeofday() - $time_start) . "\n");
 	
 	if ($month % $MONTHS_PER_YEAR == 0) {
@@ -125,7 +112,7 @@ foreach my $month (1..$MONTHS_TO_SIMULATE) {
 	}
 	
 	system 'cls';
-	$grid->Draw();
+	$gridDrawer->draw($grid);
 	print "Year " . int($month / $MONTHS_PER_YEAR) . "." . ($month % $MONTHS_PER_YEAR) . "\n";
 	print "--------------------\n";
 	print "trees: " . $data->{Counts}->{Tree} . "\n";
@@ -138,7 +125,6 @@ foreach my $month (1..$MONTHS_TO_SIMULATE) {
 	print "total lumber: $data->{StaticData}->{TotalLumber}\n";
 	print "total maws: $data->{StaticData}->{TotalMaws}\n";
 	print "--------------------\n";
-	print "real LJ count: $debugLumberJackCount\n";
 	print "\n";
 
 	#sleep(1);
