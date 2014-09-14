@@ -4,12 +4,16 @@ use Tk;
 use Tk::Canvas;
 
 sub new {
+	my ($class, $forestLoop) = @_;
+
 	my $window = MainWindow->new();
 	$window->minsize(qw(250 250));
 
 	my $canvas = $window->Canvas(-background => "white");
 	$canvas->pack(-expand => 1, -fill => "both");
 
+	$window->after(10, $forestLoop);
+	
 	return bless {
 		Canvas => $canvas
 	};
@@ -19,14 +23,15 @@ sub draw {
 	my ($self, $grid) = @_;
 	
 	my $colors = {
-		S => "cyan",
-		T => "green",
-		E => "magenta",
-		L => "red",
-		B => "yellow"
+		S => "#00FF2F",
+		T => "#479455",
+		E => "#004D0E",
+		L => "#FFAE00",
+		B => "#E80000"
 	};
 	
 	my $PIXEL_SIZE = 15;
+	$self->{Canvas}->delete('all');
 	
 	foreach my $row (0..$grid->{Size} - 1) {
 		foreach my $col (0..$grid->{Size} - 1) {
@@ -44,10 +49,14 @@ sub draw {
 				$color = $colors->{$symbol};
 			}
 			
-			$self->{Canvas}->createRectangle($pixelX, $pixelY, $PIXEL_SIZE, $PIXEL_SIZE, -fill => $color);
+			$self->{Canvas}->createRectangle(
+				$pixelX, $pixelY, $pixelX + $PIXEL_SIZE, $pixelY + $PIXEL_SIZE, -fill => $color
+			);
 
 		}
 	}
+	
+	$self->{Canvas}->update();
 }
 
 return 1;

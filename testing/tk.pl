@@ -29,12 +29,13 @@ sub draw {
 	my @colors = qw(green blue purple);
 	my $n = 0;
 
-	$window->repeat(10 => sub {
+	$window->after(10 => sub {
+		while (1) {
 			print $n++ . "\n";
 			$canvas->delete('all');
 			
-			foreach my $x (0..24) {
-				foreach my $y (0..24) {
+			foreach my $x (0..49) {
+				foreach my $y (0..49) {
 					my $num = int(rand(@colors));
 					my $color = $colors[$num];
 					my $r = $canvas->createRectangle($x * 15, $y * 15, $x * 15 + 15, $y * 15 + 15, -fill => $color);
@@ -45,7 +46,7 @@ sub draw {
 			
 			$canvas->update();
 			#sleep 1;
-		
+		}
 	});
 	
 }

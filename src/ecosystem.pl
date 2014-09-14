@@ -64,7 +64,7 @@ my $spawnPercentages = {
 	Tree => .50
 };
 
-my $gridSize = 25;
+my $gridSize = 49;
 my $totalSpots = $gridSize * $gridSize;
 
 my $coordinateFinder = CoordinateFinder->New();
@@ -85,7 +85,7 @@ foreach my $entityType (keys $spawnPercentages) {
 
 
 #my $gridDrawer = ConsoleGridDrawer->new();
-my $gridDrawer = TkGridDrawer->new();
+my $gridDrawer = TkGridDrawer->new(\&mainForestLoop);
 
 my $MONTHS_PER_YEAR = 12;
 my $YEARS = 400;
@@ -93,7 +93,6 @@ my $MONTHS_TO_SIMULATE = $YEARS * $MONTHS_PER_YEAR;
 
 $Data::Dumper::Maxdepth = 2;
 
-threads->create(\&mainForestLoop);
 MainLoop();
 
 sub mainForestLoop {
