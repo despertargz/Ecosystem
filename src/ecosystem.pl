@@ -20,6 +20,8 @@ use Bucket;
 use ConsoleGridDrawer;
 use TkGridDrawer;
 
+my ($gridSize) = @ARGV;
+$gridSize = $gridSize ? $gridSize : 25;
 
 my $options = {
 	Tree => {
@@ -64,7 +66,6 @@ my $spawnPercentages = {
 	Tree => .50
 };
 
-my $gridSize = 49;
 my $totalSpots = $gridSize * $gridSize;
 
 my $coordinateFinder = CoordinateFinder->New();
