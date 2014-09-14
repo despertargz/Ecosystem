@@ -157,11 +157,16 @@ sub AddRandomEntity {
 		
 		my $entities = $self->GetEntity("$x,$y");
 	
+		#if (!Bucket->HasType($entities, $typeOfEntity))  {
 		if (!defined($entities)) {
+			#print "spawning $typeOfEntity @ $x,$y\n";
 			my $entityOptions = $self->{Options}->{$typeOfEntity};
 			my $entity = $typeOfEntity->New($self, $self->{Data}, $entityOptions);
 			$self->SetEntity("$x,$y", $entity);
 			$self->{Data}->{Counts}->{$typeOfEntity}++;
+			$entities = $self->GetEntity("$x,$y");
+			#print Dumper($entities);
+			#my $wait = <>;
 			return 1;
 		}
 	}

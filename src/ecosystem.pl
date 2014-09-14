@@ -23,6 +23,8 @@ use TkGridDrawer;
 my ($gridSize) = @ARGV;
 $gridSize = $gridSize ? $gridSize : 25;
 
+$Data::Dumper::Maxdepth = 2;
+
 my $options = {
 	Tree => {
 		Age => {
@@ -118,23 +120,26 @@ sub mainForestLoop {
 		
 		if ($month % $MONTHS_PER_YEAR == 0) {
 			RunYearlyEvents($data, $grid, $options);
+			$gridDrawer->draw($grid);
 		}
 		
-		#system 'cls';
-		$gridDrawer->draw($grid);
-		#print "Year " . int($month / $MONTHS_PER_YEAR) . "." . ($month % $MONTHS_PER_YEAR) . "\n";
-		#print "--------------------\n";
-		#print "trees: " . $data->{Counts}->{Tree} . "\n";
-		#print "lumberjacks: " . $data->{Counts}->{LumberJack} . "\n";
-		#print "bears: " . $data->{Counts}->{Bear} . "\n";
-		#print "--------------------\n";
-		#print "lumber: " . $data->{MonthlyData}->{Lumber} . "\n";
-		#print "maws: " . $data->{MonthlyData}->{Maws} . "\n";
+		system 'cls';
+		
+		
+		
+		print "Year " . int($month / $MONTHS_PER_YEAR) . "." . ($month % $MONTHS_PER_YEAR) . "\n";
+		print "--------------------\n";
+		print "trees: " . $data->{Counts}->{Tree} . "\n";
+		print "lumberjacks: " . $data->{Counts}->{LumberJack} . "\n";
+		print "bears: " . $data->{Counts}->{Bear} . "\n";
+		print "--------------------\n";
+		print "lumber: " . $data->{MonthlyData}->{Lumber} . "\n";
+		print "maws: " . $data->{MonthlyData}->{Maws} . "\n";
 		#print "--------------------\n";
 		#print "total lumber: $data->{StaticData}->{TotalLumber}\n";
 		#print "total maws: $data->{StaticData}->{TotalMaws}\n";
 		#print "--------------------\n";
-		#print "\n";
+		print "\n";
 
 		#sleep(1);
 	}
@@ -157,6 +162,7 @@ sub CheckLumber {
 	my ($data, $grid, $options) = @_;
 	
 	my $lumberJacksToHire = int($data->{MonthlyData}->{Lumber} / $data->{Counts}->{LumberJack});
+
 	if ($lumberJacksToHire > 0) {
 		foreach (1..$lumberJacksToHire) {
 			$grid->AddRandomEntity("LumberJack");

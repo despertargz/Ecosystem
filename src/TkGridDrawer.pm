@@ -26,11 +26,11 @@ sub draw {
 		S => "#00FF2F",
 		T => "#479455",
 		E => "#004D0E",
-		L => "#FFAE00",
-		B => "#E80000"
+		L => "#0B00E3",
+		B => "#592929"
 	};
 	
-	my $PIXEL_SIZE = 15;
+	my $PIXEL_SIZE = 10;
 	$self->{Canvas}->delete('all');
 	
 	foreach my $row (0..$grid->{Size} - 1) {
@@ -50,7 +50,7 @@ sub draw {
 			}
 			
 			$self->{Canvas}->createRectangle(
-				$pixelX, $pixelY, $pixelX + $PIXEL_SIZE, $pixelY + $PIXEL_SIZE, -fill => $color
+				$pixelX, $pixelY, $pixelX + $PIXEL_SIZE, $pixelY + $PIXEL_SIZE, -fill => $color, -outline => $color
 			);
 
 		}
