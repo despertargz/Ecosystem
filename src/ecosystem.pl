@@ -120,11 +120,11 @@ sub mainForestLoop {
 		
 		if ($month % $MONTHS_PER_YEAR == 0) {
 			RunYearlyEvents($data, $grid, $options);
-			$gridDrawer->draw($grid);
+			#$gridDrawer->draw($grid);
 		}
 		
 		system 'cls';
-		
+		$gridDrawer->draw($grid);
 		
 		
 		print "Year " . int($month / $MONTHS_PER_YEAR) . "." . ($month % $MONTHS_PER_YEAR) . "\n";
